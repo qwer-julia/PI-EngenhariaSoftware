@@ -1,0 +1,212 @@
+' PlantUML: Arquivo completo com Diagrama de Classes e Diagrama de Atividades
+' Autor: Julia Fonseca
+' Uso: Salve como plantuml_etl_analitico.puml e renderize com PlantUML (CLI, VSCode, ou plantuml server).
+
+' ==========================
+' Diagrama de Classes
+' ==========================
+@startuml
+' --- Estereótipos
+interface IStorage {
+    +write(path, df)
+    +read(path)
+}
+
+package "Ingestão e ETL" {
+    class Orchestrator {
+        +schedule(job)
+        +trigger(job)
+        +get_status(jobId)
+    }
+
+    class Ingestor {
+        +download(source)
+        +validate_raw()
+    }
+
+    class Parser {
+        +parse_csv(path)
+        +parse_zip(path)
+    }
+
+    class Transformer {
+        +map_columns(mapping)
+        +cast_types(schema)
+        +apply_business_rules()
+    }
+
+    class Anonymizer {
+        +hash_id(value, salt)
+        +remove_pii(df)
+    }
+
+    class Aggregator {
+        +aggregate_by_school(df)
+        +derive_features(df)
+    }
+}
+
+package "Armazenamento & Consulta" {
+    class RawStorage <<IStorage>> {
+        +write(p)
+        +read(p)
+    }
+
+    class ProcessedStorage <<IStorage>> {
+        +write(p)
+        +read(p)
+    }
+
+    class DataWarehouse {
+        +create_table(schema)
+        +run_query(sql)
+    }
+
+    class QueryEngine {
+        +execute(sql)
+        +cache_results(qid)
+    }
+}
+
+package "Qualidade & Observabilidade" {
+    class QualityChecker {
+        +check_null_thresholds(df)
+        +check_duplicates(df)
+    }
+
+    class Lineage {
+        +record(step, metadata)
+        +get_history(entity)
+    }
+
+    class Logger {
+        +info(msg)
+        +error(msg)
+        +metric(name, value)
+    }
+}
+
+package "Consumo" {
+    class Dashboard {
+        +render(filters)
+        +export(csv|pdf)
+    }
+
+    class ReportGenerator {
+        +generate_pdf(reportSpec)
+        +attach_artifacts()
+    }
+
+    class AuthService {
+        +authenticate(user)
+        +authorize(role, resource)
+    }
+}
+
+' --- Relações
+Orchestrator --> Ingestor : "orquestra"
+Ingestor --> RawStorage : "salva raw"
+Parser --> Transformer : "entrega parsed df"
+Transformer --> Anonymizer : "aplica anonimização"
+Anonymizer --> Aggregator : "prepara para agregação"
+Aggregator --> ProcessedStorage : "salva parquet particionado"
+ProcessedStorage --> DataWarehouse : "popula tabelas"
+DataWarehouse --> QueryEngine : "serve consultas"
+QueryEngine --> Dashboard : "dados p/ visualização"
+QueryEngine --> ReportGenerator : "dados p/ relatório"
+QualityChecker ..> Transformer : "valida saída"
+Lineage ..> Orchestrator : "registra passos"
+Logger ..> Orchestrator : "logs métricas/erros"
+AuthService --> Dashboard : "SSO / permissões"
+
+note top of Orchestrator
+  Orquestrador (Airflow / Prefect)
+  - DAGs: download -> raw-> transform -> tests -> publish
+end note
+
+' --- Classes auxiliares de deploy
+class SecretsManager {
+    +get_secret(name)
+}
+class CI_CD {
+    +deploy(service)
+}
+SecretsManager --> Anonymizer : "fornece salt"
+Orchestrator --> CI_CD : "aciona deploy"
+
+' --- Visibilidade / Package notes
+note left of RawStorage
+  Formato: CSV/ZIP (raw)
+  Local: S3 / GCS / ADLS
+end note
+
+note left of ProcessedStorage
+  Formato: Parquet particionado
+  Partitions: ano, codigo_municipio
+end note
+
+@enduml
+
+
+' ==========================
+' Diagrama de Atividades (Fluxo ETL)
+' ==========================
+@startuml
+|Orchestrator|
+start
+:Iniciar DAG (download_enem_censo);
+partition "Download" {
+  :Agendar job de download;
+  :Baixar arquivos do INEP (ZIP/CSV);
+  if (checksum OK?) then (sim)
+    :Mover para RawStorage;
+  else (não)
+    :Registrar erro e retry;
+    stop
+  endif
+}
+
+partition "Ingestão / Parsing" {
+  :Detectar novos arquivos raw;
+  :Descompactar e parsear CSV (Parser);
+  :Salvar parsed como Parquet temporário;
+}
+
+partition "Transformação" {
+  :Aplicar mapeamentos de colunas (Transformer);
+  :Converter tipos e normalizar nomes;
+  :Derivar flags de infraestrutura (has_lab, has_internet,...);
+}
+
+partition "Anonimização & QA" {
+  :Solicitar salt ao SecretsManager;
+  :Gerar aluno_anon_id (sha256 + salt);
+  :Remover PII;
+  :Executar QualityChecker (nulls/dup/contagens);
+  if (checks pass?) then (sim)
+    :Registrar lineage;
+  else (não)
+    :Notificar erro via Logger e interromper DAG;
+    stop
+  endif
+}
+
+partition "Agregação & Armazenamento" {
+  :Agregações por escola e ano (Aggregator);
+  :Calcular features agregadas (infra_index, socio_index);
+  :Salvar em ProcessedStorage (Parquet) particionado por ano/codigo_municipio;
+}
+
+partition "Publicação" {
+  :Carregar DataWarehouse (bulk load ou CTAS);
+  :Invalidar cache no QueryEngine;
+  :Atualizar Dashboard (notificar via webhook);
+}
+
+partition "Relatórios" {
+  :Gerar relatório analítico (PDF) com ReportGenerator;
+  :Anexar amostras anonimizadas e métricas de qualidade;
+}
+
+stop
+@enduml
