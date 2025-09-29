@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Painel Educacional — Wireframe</title>
+  <style>
+    :root{
+      --bg:#f6f7fb; --card:#ffffff; --muted:#6b7280; --accent:#0f766e;
+      --glass: rgba(255,255,255,0.8);
+    }
+    body{font-family: Inter, "Segoe UI", Roboto, sans-serif; margin:0; background:var(--bg); color:#0f172a;}
+    .header{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;background:linear-gradient(90deg,var(--card),var(--glass));box-shadow:0 1px 4px rgba(2,6,23,0.06);}
+    .brand{display:flex;gap:12px;align-items:center}
+    .brand .logo{width:44px;height:44px;background:var(--accent);border-radius:8px;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700}
+    .filters{width:280px;padding:16px;background:var(--card);border-right:1px solid #e6e9ef;height:calc(100vh - 72px);box-sizing:border-box;overflow:auto}
+    .layout{display:flex}
+    .content{flex:1;padding:20px;overflow:auto;height:calc(100vh - 72px)}
+    .kpis{display:flex;gap:12px;margin-bottom:16px}
+    .card{background:var(--card);padding:14px;border-radius:12px;box-shadow:0 1px 4px rgba(2,6,23,0.04);flex:1}
+    .grid{display:grid;grid-template-columns:2fr 1fr;gap:12px}
+    .fullwidth{grid-column:1/-1}
+    .chart{height:320px;border-radius:10px;background:linear-gradient(180deg,#fff,#fbfdff);display:flex;align-items:center;justify-content:center;color:var(--muted);border:1px dashed #e6e9ef}
+    .small{height:180px}
+    .table{background:var(--card);padding:12px;border-radius:10px;height:320px;overflow:auto}
+    .footer{padding:12px 24px;font-size:12px;color:var(--muted)}
+    label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+    select,input[type="text"]{width:100%;padding:8px;border:1px solid #e6e9ef;border-radius:8px;background:#fff}
+    button{background:var(--accent);color:white;padding:8px 12px;border-radius:8px;border:0;cursor:pointer}
+    .muted{color:var(--muted);font-size:13px}
+    .insights{background:#fff3; padding:12px;border-radius:10px}
+  </style>
+</head>
+<body>
+  <header class="header" role="banner">
+    <div class="brand">
+      <div class="logo">SE</div>
+      <div>
+        <div style="font-weight:600">Painel Educacional — ENEM & Censo</div>
+        <div class="muted" style="font-size:12px">Visão analítica por Diretoria / Município</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="muted">Usuário: Fulano Silva (Diretoria)</div>
+      <div style="width:36px;height:36px;border-radius:50%;background:#c7ece7"></div>
+    </div>
+  </header>
+
+  <div class="layout" role="main">
+    <aside class="filters" aria-label="Filtros">
+      <h3>Filtros</h3>
+      <div style="margin-bottom:12px">
+        <label for="selAno">Ano</label>
+        <select id="selAno" multiple>
+          <option>2025</option><option>2024</option><option>2023</option>
+        </select>
+      </div>
+      <div style="margin-bottom:12px">
+        <label for="selRede">Rede</label>
+        <select id="selRede">
+          <option>Municipal</option><option>Estadual</option><option>Privada</option>
+        </select>
+      </div>
+      <div style="margin-bottom:12px">
+        <label for="selDiretoria">Diretoria / Município</label>
+        <input id="selDiretoria" type="text" placeholder="Buscar diretoria ou município" />
+      </div>
+      <div style="margin-bottom:12px">
+        <label for="selEscola">Escola</label>
+        <input id="selEscola" type="text" placeholder="Buscar por nome / CO_ESCOLA" />
+      </div>
+      <div style="margin-bottom:12px">
+        <label for="socioRange">Índice Socioeconômico (mín - máx)</label>
+        <input type="text" id="socioRange" placeholder="Ex: 0.1 - 0.8" />
+      </div>
+      <div style="display:flex;gap:8px">
+        <button id="applyBtn">Aplicar</button>
+        <button style="background:#fff;border:1px solid #e6e9ef;color:var(--muted)">Reset</button>
+      </div>
+
+      <hr style="margin:16px 0;border-color:#eef2f6"/>
+
+      <div class="muted" style="font-size:13px">Meta: compartilhar views via URL e permissões por papel.</div>
+    </aside>
+
+    <main class="content" role="region" aria-label="Conteúdo principal">
+      <!-- KPIs -->
+      <div class="kpis" role="region" aria-label="Indicadores chave">
+        <div class="card">
+          <div class="muted">Média Matemática (ano selecionado)</div>
+          <div style="font-size:28px;font-weight:700;margin-top:6px">523.4 <span style="color:green;font-size:14px">▲ 3.2</span></div>
+          <div class="muted" style="margin-top:8px">Última atualização: 2025-09-29</div>
+        </div>
+        <div class="card">
+          <div class="muted">Diferença Média (Lab vs Sem Lab)</div>
+          <div style="font-size:28px;font-weight:700;margin-top:6px">+21.2 pts</div>
+          <div class="muted" style="margin-top:8px">Effect size: 0.34</div>
+        </div>
+        <div class="card">
+          <div class="muted">Índice Socioeconômico Médio</div>
+          <div style="font-size:28px;font-weight:700;margin-top:6px">0.47</div>
+          <div class="muted" style="margin-top:8px">Sigma: 0.12</div>
+        </div>
+        <div class="card">
+          <div class="muted">Disparidade Intra-Escola</div>
+          <div style="font-size:28px;font-weight:700;margin-top:6px">σ = 48.6</div>
+          <div class="muted" style="margin-top:8px">Média das escolas</div>
+        </div>
+      </div>
+
+      <!-- Grid de visualizações -->
+      <div class="grid" role="region" aria-label="Visualizações">
+        <div>
+          <div class="card chart" id="scatter">
+            <!-- Placeholder: Scatter (Índice Socioeconômico x Nota média) -->
+            <div>
+              <strong>Scatter:</strong><br/>Índice Socioeconômico X Nota Média<br/><span class="muted">(Clique em um ponto para filtrar)</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:12px;margin-top:12px">
+            <div class="card small chart" id="boxplot">
+              <div><strong>Boxplot</strong><br/><span class="muted">Notas por escola</span></div>
+            </div>
+            <div class="table card" id="ranking">
+              <div style="font-weight:600">Ranking — Top / Bottom 10</div>
+              <table style="width:100%;margin-top:8px;border-collapse:collapse">
+                <thead class="muted"><tr><th>Pos</th><th>Escola</th><th>Nota</th></tr></thead>
+                <tbody>
+                  <tr><td>1</td><td>EE José</td><td>615</td></tr>
+                  <tr><td>2</td><td>EE Maria</td><td>598</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="card chart" id="heatmap" style="height:420px">
+            <div><strong>Heatmap</strong><br/><span class="muted">Correlação Infraestrutura x Notas</span></div>
+          </div>
+        </div>
+
+        <div class="fullwidth" style="display:flex;gap:12px;margin-top:12px">
+          <div class="card" style="flex:1">
+            <div style="font-weight:600;margin-bottom:8px">Mapa — Distribuição por Escola</div>
+            <div class="chart" style="height:240px">Mapa (GeoJSON) — placeholder</div>
+          </div>
+          <div class="card" style="width:340px">
+            <div style="font-weight:600">Insights & Recomendações</div>
+            <div class="insights" style="margin-top:8px">
+              <ol>
+                <li>Escolas com baixo infra_index apresentam média 20 pts menor em Matemática.</li>
+                <li>Recomendação: priorizar 5 escolas com maior retorno esperado (ROI curto prazo).</li>
+                <li>Investir em formação docente focada em Matemática (3 módulos)</li>
+              </ol>
+              <div style="margin-top:8px;display:flex;gap:8px">
+                <button>Gerar PDF</button>
+                <button style="background:#fff;border:1px solid #e6e9ef;color:var(--muted)">Export CSV</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div style="margin-top:14px" class="muted">Obs: este wireframe é estático. Gráficos devem ser substituídos por componentes interativos (Plotly/Vega/Deck.gl) utilizando os endpoints descritos no README.</div>
+
+    </main>
+  </div>
+
+  <footer class="footer">
+    <div>Última atualização: 2025-09-29 · Volume registros: 123.456 · Pipeline: v1.2.3</div>
+  </footer>
+
+  <!-- Nota técnica: comportamentos JS esperados (pseudocódigo)
+       - Fetch('/api/v1/aggregates?...') -> popular gráficos
+       - Expor filtros via URL: history.pushState / queryString
+       - Eventos cross-filter: chart.on('click', point) => applyFilter('co_escola', value)
+  -->
+</body>
+</html>
